@@ -1,0 +1,12 @@
+sudo mysql
+create database db_name;
+grant all privileges on user_cred_db.* to 'flaskuser'@'localhost';
+flush privileges
+
+create table users_cred(
+    id int auto_increment primary key,
+    name varhcar(20),
+    email varchar(50)
+);
+
+show tables;

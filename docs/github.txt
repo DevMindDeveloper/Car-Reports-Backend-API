@@ -1,0 +1,29 @@
+[create a new repository]
+
+git init
+git add .
+git commit -m "first commit"
+git branch -M main
+git remote add origin https://github.com/CodeMaestroHuzaifa/car-reports-backend-API.git
+git push -u origin main
+
+[push an existing repository from the command line]
+git remote add origin https://github.com/CodeMaestroHuzaifa/car-reports-backend-API.git
+git branch -M main
+git push -u origin main
+
+[create a PR request]
+# create a repo and add a readme file so that the main brach is created
+
+git init
+git add .
+git commit -m "first commit"
+git checkout -b feature/full-solution
+git remote add origin https://github.com/CodeMaestroHuzaifa/car-reports-backend-API.git
+git push -u origin feature/full-solution
+
+git add .
+git commit -m "Remove Python cache files and update docs"
+git fetch origin
+git rebase origin/main
+git push -f origin feature/full-solution
