@@ -110,3 +110,4 @@ def save_data():
         session.close()
 
     return "Report is generated!"   
+    
