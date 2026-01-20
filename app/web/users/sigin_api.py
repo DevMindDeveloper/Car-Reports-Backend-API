@@ -44,3 +44,4 @@ def check_user():
     finally:
         ## close resources.
         session.close()
+    

@@ -49,3 +49,4 @@ def add_user():
     finally:
         ## close resources.
         session.close()
+    

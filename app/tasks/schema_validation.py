@@ -20,3 +20,4 @@ class CarsSchemaSearchValidation(Schema):
     model = fields.String(required=True)
     make = fields.String(required=True)
     year = fields.Int(required=True)
+    
