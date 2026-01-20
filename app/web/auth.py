@@ -28,3 +28,4 @@ def token_required(f):
         ## return to requested process
         return f(current_user_id, *args, **kwargs)
     return decorated
+    

@@ -40,3 +40,4 @@ def search_cars(id):
     
     finally:
         session.close()
+    

@@ -13,3 +13,4 @@ celery_app.conf.beat_schedule = {
         'schedule' : timedelta(minutes=2),
     },
 }
+    

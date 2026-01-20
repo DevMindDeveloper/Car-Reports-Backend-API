@@ -1,4 +1,3 @@
-
 from app import *
 from celery import Celery
 from app.tasks.schema_validation import CarsSchemaValidation
