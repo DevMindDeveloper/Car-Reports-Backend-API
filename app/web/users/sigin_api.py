@@ -11,19 +11,21 @@ from app.web import *
 @app.route("/check_user", methods=['POST'])
 def check_user():
     res = request.get_json()
-    email = res.get("email")
-    password = res.get("password")
     
-    ## check both fields are avaliable
-    if not email or not password:
-        return jsonify({"error":"email or password is not given"}), 400 # bad request
+    ## check both fields are avaliable using schema validation
+    user = schema_user.load({
+        'email' : res.get("email"),
+        "password" : res.get("password"),
+    })
+    
+    user_record = schema_user.dump(user)
     
     try:
         ## search already exist user
-        result = session.query(User).filter(User.email == email).first()
+        result = session.query(User).filter(User.email == user_record['email']).first()
 
         ## check password and email
-        if not result or not bcrypt.check_password_hash(result.password, password):
+        if not result or not bcrypt.check_password_hash(result.password, user_record['password']):
             return jsonify({"success":"the email or password is incorrect"}), 400 # bad request
         
         ## token creation
@@ -42,4 +44,3 @@ def check_user():
     finally:
         ## close resources.
         session.close()
-    

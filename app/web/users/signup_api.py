@@ -13,12 +13,14 @@ schema = UserSchemaValidation()
 @app.route("/add_user",methods=['POST'])
 def add_user():
     res = request.get_json()
-    print("it me")
     
     try:
 
         ## schema validation 
-        user = schema.load(res)
+        user = schema_user.load({
+            'email' : res.get("email"),
+            "password" : res.get("password"),
+        })
         user_input = schema.dump(user)
     
         ## search already exist user
@@ -47,4 +49,3 @@ def add_user():
     finally:
         ## close resources.
         session.close()
-    

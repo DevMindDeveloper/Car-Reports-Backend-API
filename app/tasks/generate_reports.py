@@ -49,7 +49,6 @@ def save_data():
                 
                 session.add(insert_car_record)
                 session.commit()
-                first_time = False
 
         ## update existing records
         id_exist = False
@@ -111,4 +110,3 @@ def save_data():
         session.close()
 
     return "Report is generated!"   
-    

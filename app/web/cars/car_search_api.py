@@ -1,6 +1,7 @@
 from flask import request, jsonify
 from sqlalchemy.exc import SQLAlchemyError
 
+
 from app.web import *
 
 @app.route("/search_cars", methods=["POST"])
@@ -19,13 +20,20 @@ def search_cars(id):
     model = data['model']
     year = data['year']
 
-    ## check both fields are avaliable
-    if not date or not make or not model or not year:
-        return jsonify({"error":"all fields are not given"}), 400 # bad request
+    ## check that all fields are avaliable using schema validation
+    car = schema.load({
+        'date': date,
+        'make' : make,
+        'model' : model,
+        'year' : year,
+    })
+
+    car_record = schema.dump(car)
 
     try:
 
-        results = session.query(Car.make, Car.model, Car.year).filter(Car.date == date, Car.make == make, Car.model == model, Car.year == year).all()
+        results = session.query(Car.make, Car.model, Car.year).filter(Car.date == car_record['date'], Car.make == car_record['make'],
+                                                                      Car.model == car_record['model'], Car.year == car_record['year']).all()
 
         for res in results:
             car_dict['make'].append(res.make)
@@ -40,4 +48,3 @@ def search_cars(id):
     
     finally:
         session.close()
-    
