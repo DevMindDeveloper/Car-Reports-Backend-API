@@ -1,29 +1,11 @@
-from flask import Flask, request, jsonify
-import mysql.connector as mc
-from dateutil import parser
+from flask import request, jsonify
+from sqlalchemy.exc import SQLAlchemyError
 
-from app import config as c
-
-app = Flask(__name__)
-
-## db creds
-db_configs = {
-    'host' : c.host,
-    'user' : c.user,
-    'password' : c.password,
-    'database' : c.database
-}
-
-
-def convert_date_to_desired_format(date):
-    try:
-        dt = parser.parse(date)
-        return dt.strftime("%Y-%m-%d")
-    except Exception as e:
-        return f"Invlaid date : {e}"
+from app.web import *
 
 @app.route("/search_cars", methods=["POST"])
-def search_cars():
+@token_required
+def search_cars(id):
     ## initialization
     car_dict = {
         "make": [],
@@ -37,31 +19,24 @@ def search_cars():
     model = data['model']
     year = data['year']
 
-    ## db initialization
-    conn = mc.connect(**db_configs)
-    cursor = conn.cursor()
-
     ## check both fields are avaliable
     if not date or not make or not model or not year:
         return jsonify({"error":"all fields are not given"}), 400 # bad request
 
     try:
 
-        search_sql_query = "select make, model, year from cars_report where date = %s and make = %s and model = %s and year = %s;"
-        cursor.execute(search_sql_query, (date, make, model, year))
-        results = cursor.fetchall()
-        print(results)
+        results = session.query(Car.make, Car.model, Car.year).filter(Car.date == date, Car.make == make, Car.model == model, Car.year == year).all()
 
         for res in results:
-            car_dict['make'].append(res[0])
-            car_dict['model'].append(res[1])
-            car_dict['year'].append(res[2])
+            car_dict['make'].append(res.make)
+            car_dict['model'].append(res.model)
+            car_dict['year'].append(res.year)
 
         return jsonify({"success":car_dict}), 200 # success
     
-    except mc.Error as er:
+    except SQLAlchemyError as er:
+        session.rollback()
         return jsonify({"error": f"Error {er}"}), 400  # bad request
-
-
-if __name__ == "__main__":
-    app.run(host="127.0.0.1", port=2255)
+    
+    finally:
+        session.close()

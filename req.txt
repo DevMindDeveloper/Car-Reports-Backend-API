@@ -7,3 +7,6 @@ datetime
 celery
 redis
 marshmallow
+sqlalchemy
+pymysql
+cryptography

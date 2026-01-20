@@ -1,77 +1,113 @@
-import mysql.connector as mc
-from celery import Celery
+from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy import update
 from marshmallow import ValidationError
+import requests
+import datetime
 
-from app import config as c
-from app.tasks.schema_validation import carsSchemaValidation
-
-## db_creds
-db_configs = {
-    'host' : c.host,
-    'user' : c.user,
-    'password' : c.password,
-    'database' : c.database
-}
-
-## initialization
-schema = carsSchemaValidation()
-
-## celery app
-celery_app = Celery(
-    "tasks",
-    broker="redis://localhost:6379/0",
-    backend="redis://localhost:6379/0"
-)
+from app.models.cars.schema_car import Car
+from app.tasks import *
 
 ## task
 @celery_app.task
-def save_data(recordID, today_date, category, model, make, year):
-
-    ## db initialization
-    conn = mc.connect(**db_configs)
-    cursor = conn.cursor()
+def save_data():
 
     try:
-        car = schema.load({
-            'recordID' : recordID,
-            'today_date' : today_date,
-            'category' : category,
-            'model' : model,
-            'make' : make,
-            'year' : year
-        })
 
+        ## retreiving
+        data = requests.get(url, headers=headers)
+        results = data.json()['results']
+        
+        for res in results:
+            today_date = datetime.date.today()
+            recordID = res["objectId"]
+            category = res["Category"]
+            model = res["Model"]
+            make = res["Make"]
+            year = res["Year"]
 
-        car_input = schema.dump(car)
+            ## schema validation
+            car = schema.load({
+                'recordID' : recordID,
+                'today_date' : today_date,
+                'category' : category,
+                'model' : model,
+                'make' : make,
+                'year' : year
+            })
 
-        ## search existing records
-        search_sql_query = "select recordID from cars_report where date = %s;"
-        cursor.execute(search_sql_query, (car_input['recordID'],))
-        res = cursor.fetchone()
+            car_input = schema.dump(car)
 
-        ## check records
-        if res:
-            return "Report already avaliable!"            
+            ## search already exsit records
+            res = session.query(Car).filter(Car.recordID == car_input['recordID']).first()
+            if res:
+                logger.info("Record already avaliable!")
+            
+            ## store in DB
+            else:
+                insert_car_record = Car(recordID = car_input['recordID'], date = car_input['today_date'], category = car_input['category'],
+                                        model = car_input['model'], make = car_input['make'], year = car_input['year'])
+                
+                session.add(insert_car_record)
+                session.commit()
+                first_time = False
 
-        ## store in DB
-        insert_sql_query = "insert into cars_report (recordID, date, category, model, make, year) values (%s, %s, %s, %s, %s, %s);"
-        cursor.execute(insert_sql_query, (car_input['recordID'],
-                                          car_input['today_date'],
-                                          car_input['category'],
-                                          car_input['model'],
-                                          car_input['make'],
-                                          car_input['year']))
-        conn.commit()
+        ## update existing records
+        id_exist = False
+        db_results = session.query(Car).all()
+        res_ids = [res['objectId'] for res in results]
+
+        for res in db_results:
+            if res.recordID in res_ids:
+                id_exist = True
+
+            ## deletion
+            elif not id_exist:
+                logger.info("deleting record")
+                delete_car_record = session.query(Car).filter(Car.recordID == res.recordID).first()            
+                session.delete(delete_car_record)
+                session.commit()
+                continue
+            
+            if id_exist:
+                car_record = next((d for d in results if d.get("objectId") == res.recordID))
+                ## updation
+                if res.category != car_record['Category']:
+                    logger.info("updating category")
+                    stmt = (update(Car).where(Car.recordID == res.recordID).values(category = car_record['Category'], date = today_date))
+                    session.execute(stmt)
+                    session.commit()
+
+                elif res.make != car_record['Make']:
+                    logger.info("updating make")
+                    stmt = (update(Car).where(Car.recordID == res.recordID).values(make = car_record['Make'], date = today_date))
+                    session.execute(stmt)
+                    session.commit()
+
+                elif res.model != car_record['Model']:
+                    logger.info("updating model")
+                    stmt = (update(Car).where(Car.recordID == res.recordID).values(model = car_record['Model'], date = today_date))
+                    session.execute(stmt)
+                    session.commit()
+
+                elif res.year != car_record['Year']:
+                    logger.info("updating year")
+                    stmt = (update(Car).where(Car.recordID == res.recordID).values(year = car_record['Year'], date = today_date))
+                    session.execute(stmt)
+                    session.commit()
+                
+                else:
+                    logger.info("Report already up-to-date!")
+                    continue
     
-    except mc.Error as er:
-        print(f"Error: {er}")
+    except SQLAlchemyError as er:
+        session.rollback()
+        logger.error(f"Error: {er}")
     
     except ValidationError as err:
-        print(f"Error: {err}")
+        logger.error(f"Error: {err}")
 
     finally:
         ## close resources.
-        cursor.close()
-        conn.close()
-        
+        session.close()
+
     return "Report is generated!"   

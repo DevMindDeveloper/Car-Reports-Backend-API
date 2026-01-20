@@ -20,10 +20,7 @@ git add .
 git commit -m "first commit"
 git checkout -b feature/full-solution
 git remote add origin https://github.com/CodeMaestroHuzaifa/car-reports-backend-API.git
-git push -u origin feature/full-solution
-
-git add .
-git commit -m "Remove Python cache files and update docs"
 git fetch origin
 git rebase origin/main
 git push -f origin feature/full-solution
+

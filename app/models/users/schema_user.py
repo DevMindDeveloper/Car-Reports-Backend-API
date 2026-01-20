@@ -1,28 +1,13 @@
-import mysql.connector as mc
-import config as c
+from sqlalchemy import Column, Integer, String
+from app.models import *
 
-## db creds
-db_configs = {
-    'host' : c.host,
-    'user' : c.user,
-    'password' : c.password,
-    'database' : c.database
-}
+## table structure
+class User(base):
+    __tablename__ = "users_cred"
 
-## initialization
-conn = mc.connect(**db_configs)
-cursor = conn.cursor()
+    id = Column(Integer, primary_key=True)
+    email = Column(String(20), nullable=False)
+    password = Column(String(50), nullable=False)
 
-table_sql_query = """
-create table users_cred(
-    id int auto_increment primary key,
-    name varchar(20),
-    email varchar(50)
-);
-"""
-cursor.execute(table_sql_query)
-conn.commit()
-
-## close resources.
-cursor.close()
-conn.close()
+## creation
+base.metadata.create_all(engine)
