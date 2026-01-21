@@ -1,7 +1,9 @@
+## imports
 from functools import wraps
 from flask import request, jsonify
 import jwt
-from app.web import *
+
+from app.web import app
 
 ## Decorator to protect routes
 def token_required(f):
@@ -17,7 +19,7 @@ def token_required(f):
 
         ## decode and check the expiration of token
         try:
-            data = jwt.decode(token, c.secret_key, algorithms=["HS256"])
+            data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=["HS256"])
             current_user_id = data['user_id']
 
         except jwt.ExpiredSignatureError:
@@ -28,4 +30,3 @@ def token_required(f):
         ## return to requested process
         return f(current_user_id, *args, **kwargs)
     return decorated
-    

@@ -7,4 +7,3 @@ def convert_date_to_desired_format(date):
         return dt.strftime("%Y-%m-%d")
     except Exception as e:
         return f"Invlaid date : {e}"
-    

@@ -1,8 +1,11 @@
+## imports
 from sqlalchemy import Column, Integer, String
-from app.models import *
+
+from app.models.base import Base
+from app.models import engine
 
 ## table structure
-class Car(base):
+class Car(Base):
     __tablename__ = "cars_report"
 
     id = Column(Integer, primary_key=True)
@@ -14,5 +17,4 @@ class Car(base):
     year = Column(Integer, nullable=False)
 
 ## creation
-base.metadata.create_all(engine)
-    
+Base.metadata.create_all(engine)

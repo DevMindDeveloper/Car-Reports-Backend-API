@@ -1,47 +1,36 @@
 ## imports
-from flask import request, jsonify
-from sqlalchemy.exc import SQLAlchemyError
 import datetime
+from flask import request, jsonify
+from flask_smorest import Blueprint
 import jwt
 
 from app.models.users.schema_user import User
-from app.web import *
+from app.tasks.schema_validation import  UserSchemaValidation
+from app.web import app, session, bcrypt
 
-## sign in
-@app.route("/check_user", methods=['POST'])
-def check_user():
-    res = request.get_json()
-    
-    ## check both fields are avaliable using schema validation
-    user = schema_user.load({
-        'email' : res.get("email"),
-        "password" : res.get("password"),
-    })
-    
-    user_record = schema_user.dump(user)
-    
-    try:
-        ## search already exist user
-        result = session.query(User).filter(User.email == user_record['email']).first()
+## blueprint and prefix
+sign_in_bp = Blueprint("sign_in", __name__, url_prefix="/users")
 
-        ## check password and email
-        if not result or not bcrypt.check_password_hash(result.password, user_record['password']):
-            return jsonify({"success":"the email or password is incorrect"}), 400 # bad request
-        
-        ## token creation
-        token = jwt.encode({
-            "user_id" : str(result.id),
-            'exp' : datetime.datetime.utcnow() + datetime.timedelta(hours=1)
-        }, app.config["SECRET_KEY"], algorithm="HS256")
+## sign in api
+@sign_in_bp.route("/sign_in", methods=['POST'])
+@sign_in_bp.arguments(UserSchemaValidation())
+def sign_in(user_record):
 
-        ## return the token to user
-        return jsonify({"success": token}), 200 # success
+    email = user_record.get("email")
+    password = user_record.get("password")
 
-    except SQLAlchemyError as er:
-        session.rollback()
-        return jsonify({"error": f"{er}"}), 501 # internal server error
+    ## search already exist user
+    db_result = session.query(User).filter(User.email == email).first()
+
+    ## check password and email
+    if not db_result or not bcrypt.check_password_hash(db_result.password, password):
+        return jsonify({"success":"the email or password is incorrect"}), 400 # bad request
     
-    finally:
-        ## close resources.
-        session.close()
-    
+    ## token creation
+    token = jwt.encode({
+        "user_id" : str(db_result.id),
+        'exp' : datetime.datetime.utcnow() + datetime.timedelta(hours=1)
+    }, app.config["SECRET_KEY"], algorithm="HS256")
+
+    ## return the token to user
+    return jsonify({"success": token}), 200 # success

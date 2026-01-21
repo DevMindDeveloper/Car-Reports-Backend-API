@@ -1,8 +1,11 @@
+## imports
 from sqlalchemy import Column, Integer, String
-from app.models import *
+
+from app.models.base import Base
+from app.models import engine
 
 ## table structure
-class User(base):
+class User(Base):
     __tablename__ = "users_cred"
 
     id = Column(Integer, primary_key=True)
@@ -10,5 +13,4 @@ class User(base):
     password = Column(String(50), nullable=False)
 
 ## creation
-base.metadata.create_all(engine)
-    
+Base.metadata.create_all(engine)

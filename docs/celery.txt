@@ -1,2 +1,4 @@
 
 celery -A app.tasks.celery_worker worker --loglevel=info
+
+celery -A app.tasks.celery_app.celery_app control shutdown

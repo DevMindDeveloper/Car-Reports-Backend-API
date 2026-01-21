@@ -1,12 +1,23 @@
+## imports
 from flask import request, jsonify
+from flask_smorest import Blueprint
 from sqlalchemy.exc import SQLAlchemyError
 
+from app.models.cars.schema_car import Car
+from app.tasks.schema_validation import CarsSchemaSearchValidation
+from app.web.auth import token_required
 
-from app.web import *
+from app.web import session
 
-@app.route("/search_cars", methods=["POST"])
+## blueprint and prefix
+search_cars_bp = Blueprint("search_cars", __name__, url_prefix = "/cars")
+
+## car record search api
+@search_cars_bp.route("/search_cars", methods=["POST"])
+@search_cars_bp.arguments(CarsSchemaSearchValidation())
 @token_required
-def search_cars(id):
+def search_cars(id, car_record):
+
     ## initialization
     car_dict = {
         "make": [],
@@ -14,38 +25,19 @@ def search_cars(id):
         "year": []
     }
 
-    data = request.get_json()
-    date = convert_date_to_desired_format(data['date'])
-    make = data['make']
-    model = data['model']
-    year = data['year']
+    ## retrieving
+    date = car_record['today_date']
+    make = car_record['make']
+    model = car_record['model']
+    year = car_record['year']
 
-    ## check that all fields are avaliable using schema validation
-    car = schema.load({
-        'date': date,
-        'make' : make,
-        'model' : model,
-        'year' : year,
-    })
+    db_results = session.query(Car.make, Car.model, Car.year).filter(Car.date == date, Car.make == make,
+                                                                    Car.model == model, Car.year == year).all()
 
-    car_record = schema.dump(car)
+    ## prepare dict for returning
+    for db_res in db_results:
+        car_dict['make'].append(db_res.make)
+        car_dict['model'].append(db_res.model)
+        car_dict['year'].append(db_res.year)
 
-    try:
-
-        results = session.query(Car.make, Car.model, Car.year).filter(Car.date == car_record['date'], Car.make == car_record['make'],
-                                                                      Car.model == car_record['model'], Car.year == car_record['year']).all()
-
-        for res in results:
-            car_dict['make'].append(res.make)
-            car_dict['model'].append(res.model)
-            car_dict['year'].append(res.year)
-
-        return jsonify({"success":car_dict}), 200 # success
-    
-    except SQLAlchemyError as er:
-        session.rollback()
-        return jsonify({"error": f"Error {er}"}), 400  # bad request
-    
-    finally:
-        session.close()
-    
+    return jsonify({"success":car_dict}), 200 # success
