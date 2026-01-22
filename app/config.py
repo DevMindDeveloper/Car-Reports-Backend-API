@@ -1,6 +1,6 @@
 class CarReportCredential():
     host = 'localhost'
-    user = 'mrhuzaifa'
+    user = 'admin'
     password = '0126'
     database = 'user_cred_db'
 
