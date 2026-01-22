@@ -1,13 +1,12 @@
-from flask import Flask
-from flask_bcrypt import Bcrypt
 import logging
+from fastapi import FastAPI
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from app.config import CarReportCredential
 
-__all__ = ["engine", "session", "logger", "app", "bcrypt"]
+__all__ = ["engine", "session", "logger", "app"]
 
 ## db_engine
 """ mysql+pymysql://<user>:<password>@<host>/<database> """
@@ -27,7 +26,4 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 ## initialization
-app = Flask(__name__)
-bcrypt = Bcrypt(app)
-
-app.config['SECRET_KEY'] = CarReportCredential().app_secret_key
+app = FastAPI()

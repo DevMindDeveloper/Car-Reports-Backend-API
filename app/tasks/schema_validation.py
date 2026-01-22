@@ -1,10 +1,16 @@
 ## imports
+from datetime import date
 from marshmallow import validate, Schema, fields
+from pydantic import BaseModel, EmailStr, constr
 
 ## users_cred schema
 class UserSchemaValidation(Schema):
     email = fields.Email(required=True)
     password = fields.String(required=True, validate=validate.Length(min=8))
+
+class UserInput(BaseModel):
+    email : EmailStr
+    password: constr(min_length=8) # type: ignore
 
 ## cars_report schema
 class CarsSchemaValidation(Schema):
@@ -21,3 +27,9 @@ class CarsSchemaSearchValidation(Schema):
     model = fields.String(required=True)
     make = fields.String(required=True)
     year = fields.Int(required=True)
+
+class CarInput(BaseModel):
+    today_date : date
+    model : str
+    make : str
+    year : int
