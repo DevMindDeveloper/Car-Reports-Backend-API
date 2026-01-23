@@ -1,8 +1,0 @@
-sudo apt update
-sudo apt install mysql-server
-sudo mysql_secure_installation
-sudo systemctl start mysql
-sudo systemctl status mysql
-sudo snap install mysql-workbench-community
-CREATE USER 'flaskuser'@'localhost' IDENTIFIED BY 'yourpassword';
-rename user 'flaskuser'@'localhost' to 'admin'@'localhost' 

@@ -1,2 +1,0 @@
-flaskuser
-yourpassword
