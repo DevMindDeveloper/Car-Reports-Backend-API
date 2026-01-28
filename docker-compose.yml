@@ -1,0 +1,62 @@
+# version: "3.9"
+
+services:
+  api:
+    image: car_reports_app
+    build: .
+    container_name: car_reports_app
+    networks:
+      - my_app_network
+    command: python3 -m app.application
+    ports:
+      - "1432:1432"
+    environment:
+      FLASK_APP: app.application
+      FLASK_ENV: development
+    depends_on:
+      - mysql
+      - redis
+
+  cerlery_worker:
+    image: car_reports_app
+    container_name: car_reports_celery_wroker
+    networks:
+      - my_app_network
+    command: celery -A app.tasks.celery_app worker --loglevel=info
+    depends_on:
+      - mysql
+      - redis
+
+  celery_beater:
+    image: car_reports_app
+    container_name: car_reports_celery_beater
+    networks:
+      - my_app_network
+    command: celery -A app.tasks.celery_app beat --loglevel=info
+    depends_on:
+      - mysql
+      - redis
+
+  mysql:
+    image: mysql:8.0
+    container_name: car_user_records_db
+    networks:
+      - my_app_network
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: "0126"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  redis:
+    image: redis:7
+    container_name: celery_broker_and_backend
+    networks:
+      - my_app_network
+
+volumes:
+  mysql_data:
+
+networks:
+  my_app_network:
+    driver: bridge
