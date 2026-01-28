@@ -6,7 +6,7 @@ host = "mysql"  # Docker Compose service name
 user = CarReportCredential.root_user
 password = CarReportCredential.root_password
 
-print(f"Waiting for MySQL at {host}...")
+(f"Waiting for MySQL at {host}...")
 
 while True:
     try:

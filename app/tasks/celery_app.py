@@ -10,9 +10,9 @@ def create_celery_app():
     # celery app
     celery_app = Celery(
         "tasks",
-        broker=RedisCred().broker,
+        broker=RedisCred.broker,
         include="app.tasks.generate_reports",
-        backend=RedisCred().backend,
+        backend=RedisCred.backend,
     )
 
     # beater for scheduling the task

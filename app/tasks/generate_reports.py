@@ -71,6 +71,8 @@ def save_data():
                 delete_car_record = session.query(Car).filter(Car.recordID == db_res.recordID).first()            
                 session.delete(delete_car_record)
                 session.commit()
+
+                logger.info("Record is deleted from DB!")
                 continue
             
             if id_exist:
@@ -84,6 +86,8 @@ def save_data():
                 db_res.make = car_record['Make']
                 db_res.model = car_record['Model']
                 db_res.year = car_record['Year']
+
+                logger.info("Record is up-to-date!")
     
     except ValidationError as err:
         logger.error(f"Error: {err}")

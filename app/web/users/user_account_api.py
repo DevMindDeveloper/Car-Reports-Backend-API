@@ -48,8 +48,11 @@ def sign_in(user_record):
     db_result = session.query(User).filter(User.email == email).first()
 
     ## check password and email
-    if not db_result or not bcrypt.check_password_hash(db_result.password, password):
-        return jsonify({"success":"the email or password is incorrect"}), 400 # bad request
+    if not db_result:
+        return jsonify({"success":"the email is incorrect"}), 400 # bad request
+    
+    if not bcrypt.check_password_hash(db_result.password, password):
+        return jsonify({"success":"the password is incorrect"}), 400 # bad request
     
     ## token creation
     token = jwt.encode({

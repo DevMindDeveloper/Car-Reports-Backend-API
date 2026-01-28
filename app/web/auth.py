@@ -7,7 +7,7 @@ from app.web import app
 
 ## Decorator to protect routes
 def token_required(f):
-    @wraps(f)
+    @wraps(f) # copies metadata from "f"
     def decorated(*args, **kwargs):
         token = None
 

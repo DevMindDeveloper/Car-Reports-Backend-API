@@ -1,7 +1,6 @@
 ## imports
 from flask import request, jsonify
 from flask_smorest import Blueprint
-from sqlalchemy.exc import SQLAlchemyError
 
 from app.models.cars.schema_car import Car
 from app.web.cars.schema_validation import CarsSchemaSearchValidation
@@ -14,8 +13,8 @@ search_cars_bp = Blueprint("search_cars", __name__, url_prefix = "/cars")
 
 ## car record search api
 @search_cars_bp.route("/search_cars", methods=["POST"])
-@search_cars_bp.arguments(CarsSchemaSearchValidation())
-@token_required
+@search_cars_bp.arguments(CarsSchemaSearchValidation())  # first come last server
+@token_required  # last come first server
 def search_cars(id, car_record):
 
     ## initialization
