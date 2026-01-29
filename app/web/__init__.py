@@ -1,3 +1,3 @@
-from app import app, session, bcrypt
+from app import app, session, bcrypt, logger
 
-__all__ = ["app", "session", "bcrypt"]
+__all__ = ["app", "session", "bcrypt", "logger"]

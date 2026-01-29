@@ -3,12 +3,11 @@ import datetime
 import requests
 from celery_singleton import Singleton
 from marshmallow import ValidationError
-from sqlalchemy import update
 
 from app.config import CarReportCredential
 from app.models.cars.schema_car import Car
 from app.tasks.schema_validation import CarsSchemaValidation
-from app.tasks.celery_app import celery_app, CustomLogger
+from app.tasks.celery_app import celery_app
 
 from app.tasks import session, logger
 
@@ -56,6 +55,8 @@ def save_data():
                 session.add(insert_car_record)
                 session.commit()
 
+                logger.info("Record added!")
+
         ## update existing records
         id_exist = False
         db_results = session.query(Car).all()
@@ -75,19 +76,19 @@ def save_data():
                 logger.info("Record is deleted from DB!")
                 continue
             
-            if id_exist:
-                for res in received_records:
-                    if res.get("objectId") == db_res.recordID:
-                        car_record = res
-                        break
+        if id_exist:
+            for res in received_records:
+                if res.get("objectId") == db_res.recordID:
+                    car_record = res
+                    break
 
-                ## updation
-                db_res.category = car_record['Category']
-                db_res.make = car_record['Make']
-                db_res.model = car_record['Model']
-                db_res.year = car_record['Year']
+            ## updation
+            db_res.category = car_record['Category']
+            db_res.make = car_record['Make']
+            db_res.model = car_record['Model']
+            db_res.year = car_record['Year']
 
-                logger.info("Record is up-to-date!")
+            logger.info("Record is up-to-date!")
     
     except ValidationError as err:
         logger.error(f"Error: {err}")

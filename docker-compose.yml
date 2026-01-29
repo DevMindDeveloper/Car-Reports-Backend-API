@@ -1,50 +1,67 @@
-# version: "3.9"
-
 services:
-  api:
+  web:
     image: car_reports_app
     build: .
-    container_name: car_reports_app
+    container_name: web
     networks:
-      - my_app_network
+      - car_app_network
+    entrypoint: "./bin/wait_for_mysqldb.sh"
     command: python3 -m app.application
     ports:
-      - "1432:1432"
+      - "8080:8080"
     environment:
       FLASK_APP: app.application
       FLASK_ENV: development
+
+      MYSQL_ROOT_USER: root
+      MYSQL_ROOT_PASSWORD: "0126"
+      MYSQL_HOST: mysqldb
+      MYSQL_DATABASE: user_cred_db
+
+      APP_SECRET_KEY: CAR_PREMIUM_1122
+      EXTERNAL_CAR_HEADER_ID: 'hlhoNKjOvEhqzcVAJ1lxjicJLZNVv36GdbboZj3Z'
+      EXTERNAL_CAR_HEADER_MASTER_KEY: 'SNMJJF0CZZhTPhLDIqGhTlUNV9r60M2Z5spyWfXW'
     depends_on:
-      - mysql
+      - mysqldb
       - redis
 
-  cerlery_worker:
+  car_reports_celery_wroker:
     image: car_reports_app
     container_name: car_reports_celery_wroker
     networks:
-      - my_app_network
-    command: celery -A app.tasks.celery_app worker --loglevel=info
+      - car_app_network
+    entrypoint: "./bin/celery_worker.sh"
+    environment:
+      MYSQL_ROOT_USER: root
+      MYSQL_ROOT_PASSWORD: "0126"
+      MYSQL_HOST: mysqldb
+      MYSQL_DATABASE: user_cred_db
+      
+      EXTERNAL_CAR_HEADER_ID: 'hlhoNKjOvEhqzcVAJ1lxjicJLZNVv36GdbboZj3Z'
+      EXTERNAL_CAR_HEADER_MASTER_KEY: 'SNMJJF0CZZhTPhLDIqGhTlUNV9r60M2Z5spyWfXW'
     depends_on:
-      - mysql
+      - mysqldb
       - redis
 
-  celery_beater:
+  car_reports_celery_beater:
     image: car_reports_app
     container_name: car_reports_celery_beater
     networks:
-      - my_app_network
-    command: celery -A app.tasks.celery_app beat --loglevel=info
+      - car_app_network
+    entrypoint: "./bin/celery_beater.sh"
     depends_on:
-      - mysql
+      - mysqldb
       - redis
 
-  mysql:
+  mysqldb:
     image: mysql:8.0
     container_name: car_user_records_db
     networks:
-      - my_app_network
+      - car_app_network
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: "0126"
+      MYSQL_DATABASE: user_cred_db
     volumes:
       - mysql_data:/var/lib/mysql
 
@@ -52,11 +69,11 @@ services:
     image: redis:7
     container_name: celery_broker_and_backend
     networks:
-      - my_app_network
+      - car_app_network
 
 volumes:
   mysql_data:
 
 networks:
-  my_app_network:
+  car_app_network:
     driver: bridge

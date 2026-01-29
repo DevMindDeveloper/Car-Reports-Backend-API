@@ -7,27 +7,29 @@ import jwt
 from app.models.users.schema_user import User
 from app.web.users.schema_validation import UserSchemaValidation
 from app.web.auth import token_required
-from app.web import session, bcrypt, app
+from app.web import session, app
+
+user_instance = User()
 
 ## blueprint and prefix
 users_pb = Blueprint("users", __name__, url_prefix= "/users")
 
 ## sign up api
 @users_pb.route("/sign_up",methods=['POST'])
-@users_pb.arguments(UserSchemaValidation())
+@users_pb.arguments(UserSchemaValidation)
 def sign_up(user_input):
 
     email = user_input.get("email")
     password = user_input.get("password")
     
     ## search already exist user
-    db_results = session.query(User).filter(User.email == email).all()
+    db_result = session.query(User).filter(User.email == email).first()
 
-    if len(db_results) > 0:
+    if db_result:
         return jsonify({"error":"the user with same email already exist"}), 400 # bad request
     
     ## hash the password
-    hashed_password = bcrypt.generate_password_hash(password).decode("utf-8")
+    hashed_password = user_instance.encrypt_password(password)
 
     ## add user
     insert_user_record = User(email = email, password = hashed_password)
@@ -38,7 +40,7 @@ def sign_up(user_input):
 
 ## sign in api
 @users_pb.route("/sign_in", methods=['POST'])
-@users_pb.arguments(UserSchemaValidation())
+@users_pb.arguments(UserSchemaValidation)
 def sign_in(user_record):
 
     email = user_record.get("email")
@@ -51,7 +53,7 @@ def sign_in(user_record):
     if not db_result:
         return jsonify({"success":"the email is incorrect"}), 400 # bad request
     
-    if not bcrypt.check_password_hash(db_result.password, password):
+    if not db_result.check_password(db_result.password, password):
         return jsonify({"success":"the password is incorrect"}), 400 # bad request
     
     ## token creation

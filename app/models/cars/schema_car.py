@@ -7,6 +7,10 @@ from app.models.base import Base
 class Car(Base):
     __tablename__ = "car_reports"
 
+    make_key= "make"
+    model_key= "model"
+    year_key= "year"
+
     id = Column(Integer, primary_key=True)
     recordID = Column(String(50), nullable=False)
     date = Column(String(50), nullable=False)
@@ -15,10 +19,9 @@ class Car(Base):
     make = Column(String(50), nullable=False)
     year = Column(Integer, nullable=False)
 
-    @staticmethod
-    def to_json(car_dict, make, model, year):
-        car_dict["make"].append(make)
-        car_dict["model"].append(model)
-        car_dict["year"].append(year)
-
-        return car_dict
+    def to_json(self):
+        return {
+            self.make_key: self.make,
+            self.model_key: self.model,
+            self.year_key: self.year,
+        }

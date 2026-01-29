@@ -10,9 +10,7 @@ from app.config import CarReportCredential
 __all__ = ["engine", "session", "logger", "app", "bcrypt"]
 
 ## db_engine
-""" mysql+pymysql://<user>:<password>@<host>/<database> """
-engine = create_engine(f"mysql+pymysql://{CarReportCredential.user}:{CarReportCredential.password}@{CarReportCredential.host}/{CarReportCredential.database}")  
-                    #    echo = True) 
+engine = create_engine(CarReportCredential.database_url)
 
 ## seesion for orm operation/sqlalchemy communications
 Session = sessionmaker(bind=engine)
