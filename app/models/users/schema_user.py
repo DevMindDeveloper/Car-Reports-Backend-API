@@ -2,7 +2,7 @@
 from sqlalchemy import Column, Integer, String
 
 from app.models.base import BASE
-from app.models import bcrypt
+from app.models.users import bcrypt
 
 ## table structure
 class User(BASE):

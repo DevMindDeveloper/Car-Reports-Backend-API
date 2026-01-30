@@ -5,7 +5,7 @@ from flask_smorest import Blueprint
 from app.models.cars.schema_car import Car
 from app.web.cars.schema_validation import CarsSchemaSearchValidation
 from app.web.auth import token_required
-from app.web import session, logger
+from app.web.cars import session, logger
 
 ## blueprint and prefix
 search_cars_bp = Blueprint("search_cars", __name__, url_prefix = "/cars")

@@ -1,3 +1,3 @@
-from app import engine, bcrypt
+from app import bcrypt
 
-__all__ = ['engine', "bcrypt"]
+__all__ = ["bcrypt"]

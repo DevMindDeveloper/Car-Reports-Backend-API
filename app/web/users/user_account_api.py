@@ -7,7 +7,7 @@ import jwt
 from app.models.users.schema_user import User
 from app.web.users.schema_validation import UserSchemaValidation
 from app.web.auth import token_required
-from app.web import session, app, bcrypt
+from app.web.users import session, app, bcrypt
 
 ## blueprint and prefix
 users_pb = Blueprint("users", __name__, url_prefix= "/users")
@@ -48,7 +48,7 @@ def sign_in(user_record):
     if not db_result:
         return jsonify({"success":"the email is incorrect"}), 400 # bad request
     
-    if not bcrypt.check_password_hash(db_result.password, PASSWORD):
+    elif not bcrypt.check_password_hash(db_result.password, PASSWORD):
         return jsonify({"success":"the password is incorrect"}), 400 # bad request
     
     ## token creation

@@ -12,8 +12,8 @@ from app.tasks.celery_app import celery_app
 from app.tasks import session, logger
 
 ## task
-@celery_app.task(name="reports.save_data", base = Singleton, queue = "reports")
-def save_data():
+@celery_app.task(name="save_car_records", base = Singleton, queue = "reports")
+def save_car_records():
 
     try:
 
