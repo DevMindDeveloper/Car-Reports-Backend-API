@@ -7,9 +7,7 @@ import jwt
 from app.models.users.schema_user import User
 from app.web.users.schema_validation import UserSchemaValidation
 from app.web.auth import token_required
-from app.web import session, app
-
-user_instance = User()
+from app.web import session, app, bcrypt
 
 ## blueprint and prefix
 users_pb = Blueprint("users", __name__, url_prefix= "/users")
@@ -19,20 +17,17 @@ users_pb = Blueprint("users", __name__, url_prefix= "/users")
 @users_pb.arguments(UserSchemaValidation)
 def sign_up(user_input):
 
-    email = user_input.get("email")
-    password = user_input.get("password")
+    EMAIL = user_input.get("email")
+    PASSWORD = user_input.get("password")
     
     ## search already exist user
-    db_result = session.query(User).filter(User.email == email).first()
+    db_result = session.query(User).filter(User.email == EMAIL).first()
 
     if db_result:
         return jsonify({"error":"the user with same email already exist"}), 400 # bad request
     
-    ## hash the password
-    hashed_password = user_instance.encrypt_password(password)
-
     ## add user
-    insert_user_record = User(email = email, password = hashed_password)
+    insert_user_record = User(email = EMAIL, password = PASSWORD)
     session.add(insert_user_record)
     session.commit()
 
@@ -43,17 +38,17 @@ def sign_up(user_input):
 @users_pb.arguments(UserSchemaValidation)
 def sign_in(user_record):
 
-    email = user_record.get("email")
-    password = user_record.get("password")
+    EMAIL = user_record.get("email")
+    PASSWORD = user_record.get("password")
 
     ## search already exist user
-    db_result = session.query(User).filter(User.email == email).first()
+    db_result = session.query(User).filter(User.email == EMAIL).first()
 
     ## check password and email
     if not db_result:
         return jsonify({"success":"the email is incorrect"}), 400 # bad request
     
-    if not db_result.check_password(db_result.password, password):
+    if not bcrypt.check_password_hash(db_result.password, PASSWORD):
         return jsonify({"success":"the password is incorrect"}), 400 # bad request
     
     ## token creation

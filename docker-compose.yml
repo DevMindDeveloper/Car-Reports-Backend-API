@@ -1,3 +1,5 @@
+version: "3.9"
+
 services:
   web:
     image: car_reports_app
@@ -5,7 +7,6 @@ services:
     container_name: web
     networks:
       - car_app_network
-    entrypoint: "./bin/wait_for_mysqldb.sh"
     command: python3 -m app.application
     ports:
       - "8080:8080"
@@ -22,8 +23,10 @@ services:
       EXTERNAL_CAR_HEADER_ID: 'hlhoNKjOvEhqzcVAJ1lxjicJLZNVv36GdbboZj3Z'
       EXTERNAL_CAR_HEADER_MASTER_KEY: 'SNMJJF0CZZhTPhLDIqGhTlUNV9r60M2Z5spyWfXW'
     depends_on:
-      - mysqldb
-      - redis
+      mysqldb:
+        condition: service_healthy
+      redis:
+        condition: service_started
 
   car_reports_celery_wroker:
     image: car_reports_app
@@ -64,6 +67,12 @@ services:
       MYSQL_DATABASE: user_cred_db
     volumes:
       - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p0126 || exit 1"]
+      start_period: 5s
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
   redis:
     image: redis:7

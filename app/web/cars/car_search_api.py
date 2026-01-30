@@ -17,11 +17,7 @@ search_cars_bp = Blueprint("search_cars", __name__, url_prefix = "/cars")
 def search_cars(id, car_record):
 
     ## initialization
-    car_dict = {
-        "make": [],
-        "model": [],
-        "year": []
-    }
+    car_dict = []
 
     ## retrieving
     date = car_record['today_date']
@@ -31,15 +27,10 @@ def search_cars(id, car_record):
 
     db_results = session.query(Car).filter(Car.date == date, Car.make == make,
                                            Car.model == model, Car.year == year).all()
-
-    logger.info(db_results)
-    logger.info(session.bind.url)
     
     ## prepare dict for returning
     for db_res in db_results:
         car_record_display = db_res.to_json()
-        car_dict["make"].append(car_record_display["make"])
-        car_dict["model"].append(car_record_display["model"])
-        car_dict["year"].append(car_record_display["year"])
+        car_dict.append([car_record_display['make'],car_record_display['model'],car_record_display["year"]])
 
     return jsonify({"success":car_dict}), 200 # success

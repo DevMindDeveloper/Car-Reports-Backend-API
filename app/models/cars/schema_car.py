@@ -1,15 +1,19 @@
 ## imports
 from sqlalchemy import Column, Integer, String
 
-from app.models.base import Base
+from app.models.base import BASE
 
 ## table structure
-class Car(Base):
+class Car(BASE):
     __tablename__ = "car_reports"
 
-    make_key= "make"
-    model_key= "model"
-    year_key= "year"
+    ID= "id"
+    RECORDID= "recordID"
+    DATE= "date"
+    CATEGORY = "category"
+    MODEL_KEY= "model"
+    MAKE_KEY= "make"
+    YEAR_KEY= "year"
 
     id = Column(Integer, primary_key=True)
     recordID = Column(String(50), nullable=False)
@@ -21,7 +25,11 @@ class Car(Base):
 
     def to_json(self):
         return {
-            self.make_key: self.make,
-            self.model_key: self.model,
-            self.year_key: self.year,
+            self.ID: self.id,
+            self.RECORDID: self.recordID,
+            self.DATE: self.date,
+            self.CATEGORY: self.category,
+            self.MODEL_KEY: self.model,
+            self.MAKE_KEY: self.make,
+            self.YEAR_KEY: self.year,
         }

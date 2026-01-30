@@ -1,18 +1,18 @@
 import os
 
 class CarReportCredential():
-    host = os.getenv("MYSQL_HOST")
-    database = os.getenv("MYSQL_DATABASE")
+    host = os.getenv("MYSQL_HOST", default="mysql")
+    database = os.getenv("MYSQL_DATABASE", default="db")
 
-    root_user = os.getenv("MYSQL_ROOT_USER")
-    root_password = os.getenv("MYSQL_ROOT_PASSWORD")
+    root_user = os.getenv("MYSQL_ROOT_USER", default="root")
+    root_password = os.getenv("MYSQL_ROOT_PASSWORD", default="1111")
 
-    app_secret_key = os.getenv("APP_SECRET_KEY")
+    app_secret_key = os.getenv("APP_SECRET_KEY", default="1111")
 
         ## request parameter
     external_car_headers = {
-        'X-Parse-Application-Id': os.getenv("EXTERNAL_CAR_HEADER_ID"),
-        'X-Parse-Master-Key': os.getenv("EXTERNAL_CAR_HEADER_MASTER_KEY")
+        'X-Parse-Application-Id': os.getenv("EXTERNAL_CAR_HEADER_ID", default="car_111"),
+        'X-Parse-Master-Key': os.getenv("EXTERNAL_CAR_HEADER_MASTER_KEY", default="1111")
     }
 
     external_car_url = 'https://parseapi.back4app.com/classes/Car_Model_List'

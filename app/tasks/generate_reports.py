@@ -12,7 +12,7 @@ from app.tasks.celery_app import celery_app
 from app.tasks import session, logger
 
 ## task
-@celery_app.task(name="reports.save_data", base = Singleton)
+@celery_app.task(name="reports.save_data", base = Singleton, queue = "reports")
 def save_data():
 
     try:

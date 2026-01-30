@@ -9,17 +9,17 @@ from app.web import app
 def token_required(f):
     @wraps(f) # copies metadata from "f"
     def decorated(*args, **kwargs):
-        token = None
+        TOKEN = None
 
         ## check token
         if 'x-access-token' in request.headers:
-            token = request.headers['x-access-token']
-        if not token:
+            TOKEN = request.headers['x-access-token']
+        if not TOKEN:
             return jsonify({'message': 'Token is missing!'}), 401
 
         ## decode and check the expiration of token
         try:
-            data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=["HS256"])
+            data = jwt.decode(TOKEN, app.config['SECRET_KEY'], algorithms=["HS256"])
             current_user_id = data['user_id']
 
         except jwt.ExpiredSignatureError:
