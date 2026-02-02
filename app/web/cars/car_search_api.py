@@ -20,13 +20,8 @@ def search_cars(id, car_record):
     car_dict = []
 
     ## retrieving
-    date = car_record['today_date']
-    make = car_record['make']
-    model = car_record['model']
-    year = car_record['year']
-
-    db_results = session.query(Car).filter(Car.date == date, Car.make == make,
-                                           Car.model == model, Car.year == year).all()
+    db_results = session.query(Car).filter(Car.date == car_record['today_date'], Car.make == car_record['make'],
+                                           Car.model == car_record['model'], Car.year == car_record['year']).all()
     
 
     ## prepare dict for returning
