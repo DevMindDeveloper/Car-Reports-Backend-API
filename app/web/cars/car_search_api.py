@@ -18,7 +18,6 @@ def search_cars(id, car_record):
 
     ## initialization
     car_dict = []
-    logger.info(session.query(Car).first())
 
     ## retrieving
     date = car_record['today_date']
