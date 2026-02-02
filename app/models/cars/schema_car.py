@@ -7,10 +7,10 @@ from app.models.base import BASE
 class Car(BASE):
     __tablename__ = "car_reports"
 
-    ID= "id"
-    RECORDID= "recordID"
-    DATE= "date"
-    CATEGORY = "category"
+    ID_KEY = "id"
+    RECORDID_KEY = "recordID"
+    DATE_KEY = "date"
+    CATEGORY_KEY = "category"
     MODEL_KEY= "model"
     MAKE_KEY= "make"
     YEAR_KEY= "year"
@@ -25,10 +25,10 @@ class Car(BASE):
 
     def to_json(self):
         return {
-            self.ID: self.id,
-            self.RECORDID: self.recordID,
-            self.DATE: self.date,
-            self.CATEGORY: self.category,
+            self.ID_KEY: self.id,
+            self.RECORDID_KEY: self.recordID,
+            self.DATE_KEY: self.date,
+            self.CATEGORY_KEY: self.category,
             self.MODEL_KEY: self.model,
             self.MAKE_KEY: self.make,
             self.YEAR_KEY: self.year,

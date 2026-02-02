@@ -8,8 +8,8 @@ from app.models.users import bcrypt
 class User(BASE):
     __tablename__ = "user_credentials"
 
-    ID = "id"
-    EMAIL = "email"
+    ID_KEY = "id"
+    EMAIL_KEY = "email"
 
     id = Column(Integer, primary_key=True)
     email = Column(String(20), nullable=False)
@@ -25,6 +25,6 @@ class User(BASE):
     
     def to_json(self):
         return {
-            self.ID: self.id,
-            self.EMAIL: self.email
+            self.ID_KEY: self.id,
+            self.EMAIL_KEY: self.email
         }
