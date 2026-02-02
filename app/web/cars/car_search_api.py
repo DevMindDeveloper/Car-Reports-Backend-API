@@ -11,13 +11,14 @@ from app.web.cars import session, logger
 search_cars_bp = Blueprint("search_cars", __name__, url_prefix = "/cars")
 
 ## car record search api
-@search_cars_bp.route("/search_cars", methods=["POST"])
-@search_cars_bp.arguments(CarsSchemaSearchValidation)  # first come last server
-@token_required  # last come first server
+@search_cars_bp.route("/search_cars", methods=["GET"])
+@search_cars_bp.arguments(CarsSchemaSearchValidation, location="query")
+@token_required
 def search_cars(id, car_record):
 
     ## initialization
     car_dict = []
+    logger.info(session.query(Car).first())
 
     ## retrieving
     date = car_record['today_date']
@@ -28,6 +29,7 @@ def search_cars(id, car_record):
     db_results = session.query(Car).filter(Car.date == date, Car.make == make,
                                            Car.model == model, Car.year == year).all()
     
+
     ## prepare dict for returning
     for db_res in db_results:
         car_record_display = db_res.to_json()

@@ -19,8 +19,7 @@ def create_celery_app():
     # custom queue creation
     celery_app.conf.task_queues = {
         Queue(
-            "reports",
-            queue_arguments={"x-max-priority" : 10},
+            "reports"
         )
     }
 
@@ -29,7 +28,6 @@ def create_celery_app():
         "daily-task" : {
             'task' : 'save_car_records',
             'schedule' : timedelta(minutes=1),
-            "options" : {"queue" : "reports", "priority" : 9}
         },
     }
 
