@@ -1,12 +1,12 @@
 ## imports
 from sqlalchemy import Column, Integer, String
-
-from app.models.base import BASE
-from app.models.users import bcrypt
+from sqlalchemy.orm import relationship
+from app.models.base import Base
+import bcrypt
 
 ## table structure
-class User(BASE):
-    __tablename__ = "user_credentials"
+class User(Base):
+    __tablename__ = "users"
 
     ID_KEY = "id"
     EMAIL_KEY = "email"
@@ -15,13 +15,15 @@ class User(BASE):
     email = Column(String(20), nullable=False)
     _password = Column(String(200), nullable=False)
 
+    cars = relationship("Car", foreign_keys="Car.user_id", back_populates="user", lazy = "selectin")
+
     @property
     def password(self):
         return self._password
     
     @password.setter
     def password(self, val):
-        self._password = bcrypt.generate_password_hash(val).decode("utf-8")
+        self._password = bcrypt.hashpw(val.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
     
     def to_json(self):
         return {

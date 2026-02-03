@@ -1,24 +1,29 @@
 import os
 
 class CarReportCredential():
-    host = os.getenv("MYSQL_HOST", default="mysql")
-    database = os.getenv("MYSQL_DATABASE", default="db")
+    HOST = os.getenv("MYSQL_HOST", default="mysql")
+    DATABASE = os.getenv("MYSQL_DATABASE", default="db")
 
-    root_user = os.getenv("MYSQL_ROOT_USER", default="root")
-    root_password = os.getenv("MYSQL_ROOT_PASSWORD", default="1111")
+    ROOT_USER = os.getenv("MYSQL_ROOT_USER", default="root")
+    ROOT_PASSWORD = os.getenv("MYSQL_ROOT_PASSWORD", default="1111")
 
-    app_secret_key = os.getenv("APP_SECRET_KEY", default="1111")
+    APP_SECRET_KEY = os.getenv("APP_SECRET_KEY", default="1111")
 
         ## request parameter
-    external_car_headers = {
+    EXTERNAL_CAR_HEADERS = {
         'X-Parse-Application-Id': os.getenv("EXTERNAL_CAR_HEADER_ID", default="car_111"),
         'X-Parse-Master-Key': os.getenv("EXTERNAL_CAR_HEADER_MASTER_KEY", default="1111")
     }
 
-    external_car_url = 'https://parseapi.back4app.com/classes/Car_Model_List'
+    EXTERNAL_CAR_URL = 'https://parseapi.back4app.com/classes/Car_Model_List'
 
-    database_url = f"mysql+pymysql://{root_user}:{root_password}@{host}:3306/{database}"
+    DATABASE_URL = f"mysql+pymysql://{ROOT_USER}:{ROOT_PASSWORD}@{HOST}:3306/{DATABASE}"
+    ASYNC_DATABASE_URL = f"mysql+aiomysql://{ROOT_USER}:{ROOT_PASSWORD}@{HOST}:3306/{DATABASE}"
+
+    patch_url = "http://web:8080/cars/patch_record"
+    delete_url = "http://web:8080/cars/delete_record"
+    put_url = "http://web:8080/cars/update_database"
 
 class RedisCred():
-    broker = "redis://redis:6379/0"
-    backend = "redis://redis:6379/0"
+    BROKER = "redis://redis:6379/0"
+    BACKEND = "redis://redis:6379/0"
