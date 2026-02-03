@@ -27,33 +27,6 @@ Users can register, log in, receive a JWT token, and access protected APIs. Car 
 
 ---
 
-## 📂 Project Structure
-
-```text
-project-root/
-│
-├── app/
-│   ├── __init__.py
-│   ├── config.py
-│   ├── extensions.py
-│   ├── models/
-│   ├── routes/
-│   │   ├── auth.py
-│   │   ├── profile.py
-│   │   ├── cars.py
-│   ├── schemas/
-│   ├── services/
-│   └── tasks/
-│
-├── migrations/
-├── celery_worker.py
-├── run.py
-├── requirements.txt
-└── README.md
-```
-
----
-
 ## 🔐 Authentication Flow (JWT)
 
 1. **User Signup**
@@ -124,65 +97,6 @@ project-root/
 
 ---
 
-## ▶️ How to Run the Project
-
-### 1. Clone the Repository
-
-```bash
-git clone <repository-url>
-cd project-root
-```
-
-### 2. Create Virtual Environment
-
-```bash
-python -m venv venv
-source venv/bin/activate
-```
-
-### 3. Install Dependencies
-
-```bash
-pip install -r requirements.txt
-```
-
-### 4. Configure Environment Variables
-
-Create a `.env` file and add:
-
-```env
-FLASK_ENV=development
-SECRET_KEY=your_secret_key
-JWT_SECRET_KEY=your_jwt_secret
-DATABASE_URL=mysql://user:password@localhost/db_name
-REDIS_URL=redis://localhost:6379/0
-```
-
-### 5. Run the Application
-
-```bash
-python run.py
-```
-
-### 6. Start Celery Worker
-
-```bash
-celery -A celery_worker.celery worker --loglevel=info
-```
-
----
-
-## 🧪 API Testing
-
-* Use **Postman** to test all endpoints
-* Include JWT token in the `Authorization` header:
-
-  ```
-  Authorization: Bearer <token>
-  ```
-
----
-
 ## ✅ Key Highlights
 
 * Secure JWT-based authentication
@@ -202,7 +116,7 @@ This project demonstrates real-world backend development practices including aut
 
 ## 👨‍💻 Author
 
-**Huzaifa**
+**Mr. Huzaifa**
 
 ---
 
