@@ -15,19 +15,20 @@ users_pb = Blueprint("users", __name__, url_prefix= "/users")
 ## sign up api
 @users_pb.route("/sign_up",methods=['POST'])
 @users_pb.arguments(UserSchemaValidation)
+@users_pb.response(200, UserSchemaValidation)
 def sign_up(user_input):
 
-    EMAIL = user_input.get("email")
-    PASSWORD = user_input.get("password")
+    email = user_input.get("email")
+    password = user_input.get("password")
     
     ## search already exist user
-    db_result = session.query(User).filter(User.email == EMAIL).first()
+    db_result = session.query(User).filter(User.email == email).first()
 
     if db_result:
         return jsonify({"error":"the user with same email already exist"}), 400 # bad request
     
     ## add user
-    insert_user_record = User(email = EMAIL, password = PASSWORD)
+    insert_user_record = User(email = email, password = password)
     session.add(insert_user_record)
     session.commit()
 
@@ -36,19 +37,20 @@ def sign_up(user_input):
 ## sign in api
 @users_pb.route("/sign_in", methods=['POST'])
 @users_pb.arguments(UserSchemaValidation)
+@users_pb.response(200, UserSchemaValidation)
 def sign_in(user_record):
 
-    EMAIL = user_record.get("email")
-    PASSWORD = user_record.get("password")
+    email = user_record.get("email")
+    password = user_record.get("password")
 
     ## search already exist user
-    db_result = session.query(User).filter(User.email == EMAIL).first()
+    db_result = session.query(User).filter(User.email == email).first()
 
     ## check password and email
     if not db_result:
         return jsonify({"success":"the email is incorrect"}), 400 # bad request
     
-    elif not bcrypt.check_password_hash(db_result.password, PASSWORD):
+    elif not bcrypt.check_password_hash(db_result.password, password):
         return jsonify({"success":"the password is incorrect"}), 400 # bad request
     
     ## token creation

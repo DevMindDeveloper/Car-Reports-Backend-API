@@ -3,7 +3,7 @@ from marshmallow import Schema, fields
 
 ## cars_report schema
 class CarsSchemaValidation(Schema):
-    recordID = fields.String(required=True)
+    record_id = fields.String(required=True)
     today_date = fields.Date(format="%Y-%m-%d")
     category = fields.String(required=True)
     model = fields.String(required=True)

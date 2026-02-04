@@ -1,3 +1,3 @@
-from app import bcrypt
+from app import bcrypt, db
 
-__all__ = ["bcrypt"]
+__all__ = ["bcrypt", "db"]

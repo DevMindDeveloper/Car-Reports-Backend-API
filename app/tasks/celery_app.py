@@ -11,23 +11,19 @@ def create_celery_app():
     # celery app
     celery_app = Celery(
         "tasks",
-        broker=RedisCred.broker,
-        include="app.tasks.generate_reports",
-        backend=RedisCred.backend,
+        broker=RedisCred.BROKER,
+        include=[
+            "app.tasks.generate_reports",
+        ],
+        backend=RedisCred.BACKEND,
     )
-
-    # custom queue creation
-    celery_app.conf.task_queues = {
-        Queue(
-            "reports"
-        )
-    }
 
     # beater for scheduling the task
     celery_app.conf.beat_schedule = {
         "daily-task" : {
             'task' : 'save_car_records',
-            'schedule' : timedelta(minutes=1),
+            'schedule' : timedelta(seconds=10),
+            'options': {"queue": "reports"},
         },
     }
 
