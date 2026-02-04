@@ -19,6 +19,10 @@ class CarReportCredential():
 
     database_url = f"mysql+pymysql://{root_user}:{root_password}@{host}:3306/{database}"
 
+    patch_url = "http://web:8080/cars/patch_record"
+    delete_url = "http://web:8080/cars/delete_record"
+    put_url = "http://web:8080/cars/update_database"
+
 class RedisCred():
     broker = "redis://redis:6379/0"
     backend = "redis://redis:6379/0"

@@ -1,19 +1,16 @@
 ## imports
-from sqlalchemy import Column, Integer, String
-
-from app.models.base import BASE
-from app.models.users import bcrypt
+from app import db, bcrypt
 
 ## table structure
-class User(BASE):
+class User(db.Model):
     __tablename__ = "user_credentials"
 
     ID_KEY = "id"
     EMAIL_KEY = "email"
 
-    id = Column(Integer, primary_key=True)
-    email = Column(String(20), nullable=False)
-    _password = Column(String(200), nullable=False)
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(20), nullable=False)
+    _password = db.Column(db.String(200), nullable=False)
 
     @property
     def password(self):
