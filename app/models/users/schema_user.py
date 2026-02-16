@@ -3,7 +3,7 @@ from app import db, bcrypt
 
 ## table structure
 class User(db.Model):
-    __tablename__ = "Users"
+    __tablename__ = "users"
 
     ID_KEY = "id"
     EMAIL_KEY = "email"
