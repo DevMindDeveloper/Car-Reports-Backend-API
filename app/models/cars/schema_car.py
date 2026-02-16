@@ -20,7 +20,7 @@ class Car(db.Model):
     model = db.Column(db.String(50), nullable=False)
     make = db.Column(db.String(50), nullable=False)
     year = db.Column(db.Integer, nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey("Users.id"))
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"))
 
     user = db.relationship("User", foreign_keys = [user_id], back_populates = "cars")
 
