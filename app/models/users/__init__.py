@@ -1,3 +1,3 @@
-from app.models import bcrypt
+from app.models import bcrypt, db
 
-__all__ = ["bcrypt"]
+__all__ = ["bcrypt", "db"]

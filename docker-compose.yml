@@ -7,11 +7,14 @@ services:
     container_name: web
     networks:
       - car_app_network
-    command: python3 -m app.application
+    volumes:
+      - .:/app
+    # entrypoint: "./bin/initial_migration.sh"
+    command: python3 -m app.app
     ports:
       - "8080:8080"
     environment:
-      FLASK_APP: app.application
+      FLASK_APP: app.app
       FLASK_ENV: development
 
       MYSQL_ROOT_USER: root
@@ -20,17 +23,33 @@ services:
       MYSQL_DATABASE: user_cred_db
 
       APP_SECRET_KEY: CAR_PREMIUM_1122
-      EXTERNAL_CAR_HEADER_ID: ''
-      EXTERNAL_CAR_HEADER_MASTER_KEY: ''
+      EXTERNAL_CAR_HEADER_ID: 'hlhoNKjOvEhqzcVAJ1lxjicJLZNVv36GdbboZj3Z'
+      EXTERNAL_CAR_HEADER_MASTER_KEY: 'SNMJJF0CZZhTPhLDIqGhTlUNV9r60M2Z5spyWfXW'
     depends_on:
       mysqldb:
         condition: service_healthy
       redis:
         condition: service_started
+      flask_migration:
+        condition: service_started
 
-  car_reports_celery_wroker:
+  flask_migration:
     image: car_reports_app
-    container_name: car_reports_celery_wroker
+    container_name: flask_migration
+    networks:
+      - car_app_network
+    command: flask db upgrade
+    environment:
+      MYSQL_ROOT_USER: root
+      MYSQL_ROOT_PASSWORD: "0126"
+      MYSQL_HOST: mysqldb
+      MYSQL_DATABASE: user_cred_db
+    depends_on:
+       mysqldb:
+        condition: service_healthy
+  worker:
+    image: car_reports_app
+    container_name: worker
     networks:
       - car_app_network
     entrypoint: "./bin/celery_worker.sh"
@@ -40,15 +59,15 @@ services:
       MYSQL_HOST: mysqldb
       MYSQL_DATABASE: user_cred_db
       
-      EXTERNAL_CAR_HEADER_ID: ''
-      EXTERNAL_CAR_HEADER_MASTER_KEY: ''
+      EXTERNAL_CAR_HEADER_ID: 'hlhoNKjOvEhqzcVAJ1lxjicJLZNVv36GdbboZj3Z'
+      EXTERNAL_CAR_HEADER_MASTER_KEY: 'SNMJJF0CZZhTPhLDIqGhTlUNV9r60M2Z5spyWfXW'
     depends_on:
       - mysqldb
       - redis
 
-  car_reports_celery_beater:
+  beat:
     image: car_reports_app
-    container_name: car_reports_celery_beater
+    container_name: beat
     networks:
       - car_app_network
     entrypoint: "./bin/celery_beater.sh"
@@ -58,7 +77,7 @@ services:
 
   mysqldb:
     image: mysql:8.0
-    container_name: car_user_records_db
+    container_name: mysqldb
     networks:
       - car_app_network
     restart: always
@@ -76,7 +95,7 @@ services:
 
   redis:
     image: redis:7
-    container_name: celery_broker_and_backend
+    container_name: redis
     networks:
       - car_app_network
 

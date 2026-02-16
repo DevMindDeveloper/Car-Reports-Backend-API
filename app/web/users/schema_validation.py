@@ -14,3 +14,10 @@ class UserSchemaValidation(Schema):
             )
         ]
     )
+
+class CarsSchemaModificationValidation(Schema):
+    today_date = fields.Date(format="%Y-%m-%d")
+    category = fields.String(required=True)
+    model = fields.String(required=True)
+    make = fields.String(required=True)
+    year = fields.Int(required=True)
