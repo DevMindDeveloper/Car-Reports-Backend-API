@@ -11,9 +11,11 @@ class User(Base):
     ID_KEY = "id"
     EMAIL_KEY = "email"
 
-    id = Column(Integer, primary_key=True)
-    email = Column(String(20), nullable=False)
-    _password = Column(String(200), nullable=False)
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(20), nullable=False)
+    _password = db.Column(db.String(200), nullable=False)
+
+    cars = db.relationship("Car", foreign_keys="Car.user_id", back_populates="user", lazy = "dynamic")
 
     cars = relationship("Car", foreign_keys="Car.user_id", back_populates="user", lazy = "selectin")
 
