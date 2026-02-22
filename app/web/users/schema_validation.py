@@ -1,23 +1,32 @@
 ## imports
-from marshmallow import validate, Schema, fields
+import re
+from datetime import date
+from pydantic import BaseModel, EmailStr, Field, field_validator
 
 ## users_cred schema
-class UserSchemaValidation(Schema):
-    email = fields.Email(required=True)
-    password = fields.String(
-        required=True,
-        validate=[
-            validate.Length(min=8),
-            validate.Regexp(
-                r'^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&]).+$',
-                error="Password must have upper, lower, digit & special char"
-            )
-        ]
-    )
+class UserSchemaValidation(BaseModel):
+    email : EmailStr
+    password : str = Field(..., min_length=8)
 
-class CarsSchemaModificationValidation(Schema):
-    today_date = fields.Date(format="%Y-%m-%d")
-    category = fields.String(required=True)
-    model = fields.String(required=True)
-    make = fields.String(required=True)
-    year = fields.Int(required=True)
+    @field_validator("password")
+    @classmethod
+    def validate_password(cls, value):
+        pattern = r'^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&]).+$'
+        if not re.match(pattern, value):
+            raise ValueError(
+                "Password must have upper, lower, digit & special char"
+            )
+        return value
+
+class SuccessModel(BaseModel):
+    success: str
+
+class FailureModel(BaseModel):
+    error: str
+    
+class CarsSchemaModificationValidation(BaseModel):
+    today_date : date
+    category : str
+    model : str
+    make : str
+    year : int

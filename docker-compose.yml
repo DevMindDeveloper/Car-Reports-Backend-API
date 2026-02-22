@@ -9,8 +9,7 @@ services:
       - car_app_network
     volumes:
       - .:/app
-    # entrypoint: "./bin/initial_migration.sh"
-    command: python3 -m app.app
+    command: uvicorn app.app:app --host 0.0.0.0 --port 8080
     ports:
       - "8080:8080"
     environment:
@@ -30,23 +29,24 @@ services:
         condition: service_healthy
       redis:
         condition: service_started
-      flask_migration:
+      alembic_migration:
         condition: service_started
 
-  flask_migration:
+  alembic_migration:
     image: car_reports_app
-    container_name: flask_migration
+    container_name: alembic_migration
     networks:
       - car_app_network
-    command: flask db upgrade
+    command: alembic upgrade head
     environment:
       MYSQL_ROOT_USER: root
       MYSQL_ROOT_PASSWORD: "0126"
       MYSQL_HOST: mysqldb
       MYSQL_DATABASE: user_cred_db
     depends_on:
-       mysqldb:
+      mysqldb:
         condition: service_healthy
+
   worker:
     image: car_reports_app
     container_name: worker

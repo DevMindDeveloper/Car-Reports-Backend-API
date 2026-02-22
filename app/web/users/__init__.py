@@ -1,3 +1,3 @@
-from app import app, session, bcrypt
+from app import app, AsyncSessionLocal
 
-__all__ = ["app", "session", "bcrypt"]
+__all__ = ["app", "AsyncSessionLocal"]
