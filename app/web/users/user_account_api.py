@@ -1,76 +1,79 @@
 ## imports
+import bcrypt
 import datetime
-from flask import request, jsonify
-from flask_smorest import Blueprint
 import jwt
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
 
+from app.config import CarReportCredential
 from app.models.users.schema_user import User
-from app.web.users.schema_validation import UserSchemaValidation
+from app.web.users.schema_validation import UserSchemaValidation, SuccessModel, FailureModel
 from app.web.auth import token_required
-from app.web.users import session, app, bcrypt
+from app.web.users import app
+from app.web.users.utils import get_db
 
 ## blueprint and prefix
-users_pb = Blueprint("users", __name__, url_prefix= "/users")
+users_pb = APIRouter(prefix= "/users")
 
 ## sign up api
-@users_pb.route("/sign_up",methods=['POST'])
-@users_pb.arguments(UserSchemaValidation)
-@users_pb.response(200, UserSchemaValidation)
-def sign_up(user_input):
+@users_pb.post("/sign_up",response_model=SuccessModel, status_code = 200, responses={400:{"model":FailureModel}})
+async def sign_up(user_input: UserSchemaValidation, session: AsyncSession = Depends(get_db)):
 
-    email = user_input.get("email")
-    password = user_input.get("password")
+    email = user_input.email
+    password = user_input.password
     
     ## search already exist user
-    db_result = session.query(User).filter(User.email == email).first()
+    db_result = await session.execute(select(User).where(User.email == email))
+    user_record = db_result.scalar_one_or_none()
 
-    if db_result:
-        return jsonify({"error":"the user with same email already exist"}), 400 # bad request
+    if user_record:
+        raise HTTPException(status_code=400, detail="the user with same email already exists")
     
     ## add user
     insert_user_record = User(email = email, password = password)
     session.add(insert_user_record)
-    session.commit()
+    await session.commit()
+    await session.refresh(insert_user_record)
 
-    return jsonify({"success":"user is added"}), 200 # success
+    return {"success":"user is added"} # success
 
 ## sign in api
-@users_pb.route("/sign_in", methods=['POST'])
-@users_pb.arguments(UserSchemaValidation)
-@users_pb.response(200, UserSchemaValidation)
-def sign_in(user_record):
+@users_pb.post("/sign_in", response_model=SuccessModel, status_code = 200, responses={400:{"model":FailureModel}})
+async def sign_in(user_record: UserSchemaValidation,session: AsyncSession = Depends(get_db)):
 
-    email = user_record.get("email")
-    password = user_record.get("password")
+    email = user_record.email
+    password = user_record.password
 
     ## search already exist user
-    db_result = session.query(User).filter(User.email == email).first()
+    db_result = await session.execute(select(User).where(User.email == email))
+    db_user_record = db_result.scalar_one_or_none()
 
     ## check password and email
-    if not db_result:
-        return jsonify({"success":"the email is incorrect"}), 400 # bad request
+    if not db_user_record:
+        raise HTTPException (status_code=400, detail="the email is incorrect")
     
-    elif not bcrypt.check_password_hash(db_result.password, password):
-        return jsonify({"success":"the password is incorrect"}), 400 # bad request
+    elif not bcrypt.checkpw(password.encode("utf-8"), db_user_record.password.encode("utf-8")):
+        raise HTTPException (status_code=400, detail="the password is incorrect")
     
     ## token creation
     token = jwt.encode({
-        "user_id" : str(db_result.id),
+        "user_id" : str(db_user_record.id),
         'exp' : datetime.datetime.utcnow() + datetime.timedelta(hours=1)
-    }, app.config["SECRET_KEY"], algorithm="HS256")
+    },CarReportCredential.APP_SECRET_KEY, algorithm="HS256")
 
     ## return the token to user
-    return jsonify({"success": token}), 200 # success
+    return {"success": token}
 
 ## profile request api
-@users_pb.route('/profile', methods=['GET'])
-@token_required
-def profile(user_id):
+@users_pb.get('/profile')
+async def profile(user_id: int = Depends(token_required), session: AsyncSession = Depends(get_db)):
 
-    db_user_record = session.query(User).filter(User.id == user_id).first()
+    db_result = await session.execute(select(User).where(User.id == user_id))
+    db_user_record = db_result.scalar_one_or_none()
     
     if not db_user_record:
-        return jsonify({'message': 'User not found'}), 404
+        return {'message': 'User not found'}, 404
 
-    return jsonify({'user_id': db_user_record.id,
-                    "user_email":db_user_record.email})
+    return {'user_id': db_user_record.id,
+            "user_email":db_user_record.email}

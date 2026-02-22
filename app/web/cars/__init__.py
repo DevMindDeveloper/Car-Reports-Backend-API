@@ -1,3 +1,3 @@
-from app import session, logger
+from app import AsyncSessionLocal, logger
 
-__all__ = ["session", "logger"]
+__all__ = ["AsyncSessionLocal", "logger"]

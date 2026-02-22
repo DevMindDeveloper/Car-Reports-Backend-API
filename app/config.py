@@ -18,6 +18,7 @@ class CarReportCredential():
     EXTERNAL_CAR_URL = 'https://parseapi.back4app.com/classes/Car_Model_List'
 
     DATABASE_URL = f"mysql+pymysql://{ROOT_USER}:{ROOT_PASSWORD}@{HOST}:3306/{DATABASE}"
+    ASYNC_DATABASE_URL = f"mysql+aiomysql://{ROOT_USER}:{ROOT_PASSWORD}@{HOST}:3306/{DATABASE}"
 
     patch_url = "http://web:8080/cars/patch_record"
     delete_url = "http://web:8080/cars/delete_record"

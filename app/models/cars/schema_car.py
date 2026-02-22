@@ -1,8 +1,10 @@
 ## imports
-from app.models.cars import db
+from sqlalchemy.orm import relationship
+from sqlalchemy import Column, Integer, String, ForeignKey
+from app.models.base import Base
 
 ## table structure
-class Car(db.Model):
+class Car(Base):
     __tablename__ = "car_reports"
 
     ID_KEY = "id"
@@ -13,16 +15,16 @@ class Car(db.Model):
     MAKE_KEY= "make"
     YEAR_KEY= "year"
 
-    id = db.Column(db.Integer, primary_key=True)
-    record_id = db.Column(db.String(50), nullable=False)
-    date = db.Column(db.String(50), nullable=False)
-    category = db.Column(db.String(50), nullable=False)
-    model = db.Column(db.String(50), nullable=False)
-    make = db.Column(db.String(50), nullable=False)
-    year = db.Column(db.Integer, nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey("users.id"))
+    id = Column(Integer, primary_key=True)
+    record_id = Column(String(50), nullable=False)
+    date = Column(String(50), nullable=False)
+    category = Column(String(50), nullable=False)
+    model = Column(String(50), nullable=False)
+    make = Column(String(50), nullable=False)
+    year = Column(Integer, nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id"))
 
-    user = db.relationship("User", foreign_keys = [user_id], back_populates = "cars")
+    user = relationship("User", foreign_keys = [user_id], back_populates = "cars")
 
     def to_json(self):
         return {
